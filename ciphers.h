@@ -11,6 +11,8 @@
 #include <vector>
 #include "memtrace.h"
 
+using std::string;
+
 /**
  * Az ős osztály interfésze
  */ 
@@ -45,7 +47,7 @@ private:
     int shift;
 public:
     CaesarCipher(): shift(0){};
-    CaesarCipher(int shiftCtor){ shift = shiftCtor;}
+    explicit CaesarCipher(int shiftCtor){ shift = shiftCtor;}
     std::string encode(const std::string& message);
     std::string decode(const std::string& ciphertext);
     Cipher* clone() const;
@@ -53,11 +55,20 @@ public:
 };
 
 class MyCipher {
-
+private:
+    string key;
+    int offset;
+public:
+    explicit MyCipher(string ckey){ key = ckey; offset = 0;}
+    MyCipher(string ckey, int coffset){ key = ckey; offset = coffset;}
+    string encode(const string& message);
+    string decode(const std::string& ciphertext);
+    Cipher* clone() const;
 };
 
+/*
 class CipherQueue {
 
 };
-
+*/
 #endif
