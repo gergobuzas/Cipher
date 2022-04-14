@@ -18,31 +18,25 @@ using std::string;
      */
 std::string CaesarCipher::encode(const std::string& message){
     int ogshift = shift;
-    shift = shift - (shift / 26) * 26;
+    shift = shift % 26;
 
     string caesarEncoded = "";
     for (int i = 0; message[i] != '\0'; ++i) {
         char betu = message[i];
-        if(betu >= 'a' and betu <= 'z'){
-            int szam = int(betu) + shift;
-            if(szam > 128){
-                szam = szam - 128;
-                betu = char('a' + szam + 5);
-            }
-            else{
-                betu = char(int(betu) + shift);
-                while(betu < 'a'){
-                    betu = betu + 'z' - 'a' + 1;
-                }
-                while(betu > 'z'){
-                    betu = betu - 'z' + 'a' - 1;
-                }
-            }
-        }
-        else{
+        unsigned char shiftedChar = betu + shift;
+        if(betu == ' ')
+            caesarEncoded += betu;
+        else if (betu < 'a' or betu > 'z')
             throw "E0PWAX";
+        else{
+            while(shiftedChar < 'a'){
+                shiftedChar = shiftedChar + 'z' - 'a' + 1;
+            }
+            while(shiftedChar > 'z'){
+                shiftedChar = shiftedChar - 'z' + 'a' - 1;
+            }
+            caesarEncoded += shiftedChar;
         }
-        caesarEncoded += betu;
     }
     shift = ogshift;
     return caesarEncoded;
@@ -55,24 +49,25 @@ std::string CaesarCipher::encode(const std::string& message){
  */
 std::string CaesarCipher::decode(const std::string &ciphertext) {
     int ogshift = shift;
-    shift = shift - (shift / 26) * 26;
+    shift = shift % 26;
 
     string caesarDecoded = "";
     for (int i = 0; ciphertext[i] != '\0'; ++i) {
         char betu = ciphertext[i];
-        if(betu >= 'a' and betu <= 'z'){
-            betu = betu - shift;
-            if(betu < 'a'){
-                betu = betu + 'z' - 'a' + 1;
-            }
-            if(betu > 'z'){
-                betu = betu - 'z' + 'a' - 1;
-            }
-        }
-        else{
+        unsigned char shiftedChar = betu - shift;
+        if(betu == ' ')
+            caesarDecoded += betu;
+        else if (betu < 'a' or betu > 'z')
             throw "E0PWAX";
+        else{
+            while(shiftedChar < 'a'){
+                shiftedChar = shiftedChar + 'z' - 'a' + 1;
+            }
+            while(shiftedChar > 'z'){
+                shiftedChar = shiftedChar - 'z' + 'a' - 1;
+            }
+            caesarDecoded += shiftedChar;
         }
-        caesarDecoded += betu;
     }
     shift = ogshift;
     return caesarDecoded;
@@ -83,46 +78,84 @@ std::string CaesarCipher::decode(const std::string &ciphertext) {
  * @return  a létrehozott objektumra mutató pointer
  */
 Cipher* CaesarCipher::clone() const{
-    CaesarCipher* cloned;
-    cloned = new CaesarCipher[1];
+    Cipher* cloned;
+    cloned = new CaesarCipher(*this);
+    return cloned;
 }
 
 //MYCIPHER FÜGGVÉNYEI
 
 string MyCipher::encode(const string& message){
     string encodedString = "";
-    int keyIdx = 0, currentOffset = offset, shift;
+    int keyIdx = 0, currentOffset = offset, keyShift, shift;
 
     for (int i = 0; message[i] != '\0'; ++i) {
         char betu = message[i];
-        shift = keyIdx + currentOffset;
-        encodedString += std::to_string(betu + shift);
+        keyShift = this->key[keyIdx] - 'a';
+        shift = keyShift + currentOffset;
+        unsigned char encodedChar = betu + shift;
 
-        keyIdx++; currentOffset++;
-        if(keyIdx == key.length())
-            keyIdx = 0;
-    }
+        if(betu == ' '){
+            encodedString += ' ';
+            keyIdx++; currentOffset++;
+        }
+        else if (betu < 'a' or betu > 'z')
+            throw "E0PWAX";
+        else{
+            while (encodedChar > 'z'){
+                encodedChar = encodedChar - 'z' + 'a' - 1;
+            }
 
+            while (encodedChar < 'a'){
+                encodedChar = encodedChar + 'z' - 'a' + 1;
+            }
+
+            encodedString += encodedChar;
+
+            keyIdx++; currentOffset++;
+            if(keyIdx == key.length())
+                keyIdx = 0;
+            }
+        }
     return encodedString;
 }
 string MyCipher::decode(const std::string &ciphertext) {
     string decodedString = "";
-    int keyIdx = 0, currentOffset = offset, shift;
+    int keyIdx = 0, currentOffset = offset, keyShift, shift;
 
     for (int i = 0; ciphertext[i] != '\0'; ++i) {
         char betu = ciphertext[i];
-        shift = keyIdx + currentOffset;
-        decodedString += std::to_string(betu - shift);
+        keyShift = this->key[keyIdx] - 'a';
+        shift = keyShift + currentOffset;
+        unsigned char decodedChar = betu - shift;
 
-        keyIdx++; currentOffset++;
-        if(keyIdx == key.length())
-            keyIdx = 0;
+        if(betu == ' '){
+            decodedString += ' ';
+            keyIdx++; currentOffset++;
+        }
+        else if (betu < 'a' or betu > 'z')
+            throw "E0PWAX";
+        else{
+            while (decodedChar > 'z'){
+                decodedChar = decodedChar - 'z' + 'a' - 1;
+            }
+
+            while (decodedChar < 'a'){
+                decodedChar = decodedChar + 'z' - 'a' + 1;
+            }
+            decodedString += decodedChar;
+
+            keyIdx++; currentOffset++;
+            if(keyIdx == key.length())
+                keyIdx = 0;
+        }
     }
-
     return decodedString;
 }
 Cipher* MyCipher::clone() const{
-
+    Cipher* cloned;
+    cloned = new MyCipher(*this);
+    return cloned;
 }
 
 

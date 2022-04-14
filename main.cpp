@@ -16,7 +16,7 @@
 #include "ciphers.h"
 #include "memtrace.h"
 
-#define ELKESZULT 5
+#define ELKESZULT 8
 
 /* ELKESZULT makró:
     = 5: Caesar titkosítás tesztjei
@@ -123,8 +123,9 @@ int main() {
             EXPECT_STREQ("meg tobb szorgalmit progkettobol", str2.c_str());
         } END
 #endif
-    CipherQueue queue; //kell majd a következőkhöz is
+
 #if ELKESZULT > 9
+    CipherQueue queue; //kell majd a következőkhöz is
     TEST(Cipher_Queue: inner queue, _pointert mindenhova_alfa) {
             CipherQueue inner;
             inner.add(new MyCipher("queue"));

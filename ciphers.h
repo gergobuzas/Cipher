@@ -42,7 +42,7 @@ public:
 };
 
 //Osztályok, amiket meg kell csinálni a leírások és az osztálydiagram alapján
-class CaesarCipher {
+class CaesarCipher: public Cipher{
 private:
     int shift;
 public:
@@ -54,7 +54,7 @@ public:
 
 };
 
-class MyCipher {
+class MyCipher: public Cipher {
 private:
     string key;
     int offset;
